@@ -231,8 +231,8 @@ function check(){
                 required
                 <?= $readonly_2 ?>
                 type="date"
-                name="birth" 
-                id="birth" 
+                name="birth"
+                id="birth"
                 value="<?= $_POST["birth"] ?>">
         </div>
     </div>
@@ -253,7 +253,7 @@ function check(){
 
 </div>
 
-<iframe width="800" height="400" src="req/mysql-query.php" id="iframe1"></iframe>
+<iframe width="800" height="400" src="req/sqlite-query.php" id="iframe1"></iframe>
 
 </body>
 </html>

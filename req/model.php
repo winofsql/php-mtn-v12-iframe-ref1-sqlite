@@ -7,69 +7,45 @@ QUERY;
 
 // 入力値で条件作成
 if ( $_POST["simei"] != "" ) {
-
-    $_POST["query"] .= " where 氏名 like '%{$_POST["simei"]}%' ";
-
+    $_POST["query"] .= " where 氏名 like :simei ";
 }
 
-// SQL の実行
-if ( $_POST["query"] != "" ) {
-
-
-    // SQL の実行
-    $result = $mysqli->query( $_POST["query"] );
-    if ( $result === FALSE ){
-        //エラー
-        $error = $mysqli->error;
+try {
+    $stmt = $sqlite->prepare($_POST["query"]);
+    if ( $_POST["simei"] != "" ) {
+        $stmt->bindValue( ':simei', "%" . $_POST["simei"] . "%", PDO::PARAM_STR );
     }
-    else {
-        if( $result === TRUE ) {
+    $stmt->execute();
+}
+catch ( PDOException $e ) {
+    $GLOBALS["error"]["db"] .= $GLOBALS["dbname"];
+    $GLOBALS["error"]["db"] .= " " . $e->getMessage();
+}
 
+$title = "";
+$data_body = "";
+while ( $row = $stmt->fetch() ) {
+    if ( $title == "" ) {
+        $title .= "<tr>";
+        for ($i = 0; $i < $stmt->columnCount(); $i++) {
+            $meta = $stmt->getColumnMeta($i);
+            $title .= "<td>{$meta['name']}</td>";
+        }
+        $title .= "</tr>";
+    }
+    $data_body .= "<tr>";
+    for( $i = 0; $i <  $stmt->columnCount(); $i++ ) {
+
+        if ( $i == 1 ) {
+            $data_body .= "<td><a href='#' onclick='setData(\"{$row[0]}\",\"{$row[1]}\")'>{$row[$i]}</a></td>";
         }
         else {
-
-            // 列の情報一覧を取得
-            $field = $result->fetch_fields( );
-
-            $title = "";
-
-            $title .= "<tr>";
-            for( $i = 0; $i < count( $field ); $i++ ) {
-
-                $title .= "<td>{$field[$i]->name}</td>";
-
-            }
-            $title .= "</tr>";
-
-            // 行データ変数の初期化
-            $data_body = "";
-
-            // MYSQLI_BOTH
-            while ( $row = $result->fetch_array( MYSQLI_BOTH ) ) {
-
-                $data_body .= "<tr>";
-                for( $i = 0; $i < count( $field ); $i++ ) {
-
-                    if ( $i == 1 ) {
-                        $data_body .= "<td><a href='#' onclick='setData(\"{$row[0]}\",\"{$row[1]}\")'>{$row[$i]}</a></td>";
-                    }
-                    else {
-                        $data_body .= "<td>{$row[$i]}</td>";
-                    }
-
-                }
-                $data_body .= "</tr>";
-
-            }
-            print "</pre>";
+            $data_body .= "<td>{$row[$i]}</td>";
         }
+
     }
+    $data_body .= "</tr>";
 
 }
-
-// ***************************
-// 接続解除
-// ***************************
-$mysqli->close();
 
 ?>

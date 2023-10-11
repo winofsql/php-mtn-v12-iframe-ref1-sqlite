@@ -54,7 +54,7 @@ function setData(scode,sname){
 
 </form>
 
-<b style="color:red;"><?= $error ?></b>
+<b style="color:red;"><?= $GLOBALS["error"]["db"] ?></b>
 
 <table class="table table-hover table-responsive" style='width:400px'>
 
